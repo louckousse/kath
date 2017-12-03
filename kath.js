@@ -231,6 +231,7 @@ function display_statistics() {
     ctx.fillText("resources: " + how_many(earth_resources), 10, 80, 240);
     ctx.fillText("killed: " + how_many(inhabitant_killed), 10, 125, 240);
     ctx.fillText("Attacks: " + how_many(attack_launched), 10, 170, 240);
+    ctx.fillText("Years: " + how_many(tic), 10, 215, 240);
     ctx.closePath();
 }
 
