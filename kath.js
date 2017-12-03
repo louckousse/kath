@@ -12,6 +12,12 @@ var ib_displayed = 0;
 var blocks_position = new Array();
 var inhabitant_killed = 0;
 var attack_launched = 0;
+var earthquake_obj = {last_use : 1, load_time : 20};
+var tornado_obj = {last_use : 1, load_time : 15};
+var eruption_obj = {last_use : 1, load_time : 10};
+var lightning_obj = {last_use : 1, load_time : 5};
+var typhoon_obj = {last_use : 1, load_time : 30};
+var beg_rect = game_width - 245;
 
 var tic = 0;
 var th = 0;
@@ -19,26 +25,30 @@ var th = 0;
 
  display_background();
 
-var t = setInterval(runGame,1000);
+var t = setInterval(runGame,100);
 
 /* ------- GAME LOGIC ------- */
 function runGame() {
-    reproduction();
     resources_consumption();
     display_statistics();
-    display_inhabitants_block()
+    display_inhabitants_block();
     if (earth_resources <= 0) clearInterval(t);
-    if (inhabitant_blocks.call() > 10 && th == 0) th = tic;
-    tic++;
+    earthquake_button();
+    tornado_button();
+    eruption_button();
+    lightning_button();
+    typhoon_button();
+    th++;
+    if (th%10==0) {tic++;reproduction();}
 }
 
 function reproduction() {
-    inhabitants = Math.ceil(inhabitants * 1.3);
+    inhabitants = Math.ceil(inhabitants * 1.1);
 }
 
 function resources_consumption() {
-    earth_resources -= inhabitant_blocks.call() * 100;
-    earth_resources += 1000;
+    earth_resources -= inhabitant_blocks.call() * 10;
+    earth_resources += 100;
     if (earth_resources < 0) earth_resources = 0;
 }
 /* --------------------------- */
@@ -76,11 +86,17 @@ function display_action() {
     ctx.fill();
     ctx.closePath();
 
-    var beg_rect = game_width - 245;
+    earthquake_button();
+    tornado_button();
+    eruption_button();
+    lightning_button();
+    typhoon_button();
+}
 
-    // earthquake
+function earthquake_button() {
     ctx.beginPath();
-    ctx.fillStyle = "white"
+    ctx.clearRect(beg_rect,15,230,40)
+    ctx.fillStyle = (earthquake_obj.last_use + earthquake_obj.load_time > tic ? "#b8b8b8" : "white");
     ctx.rect(beg_rect,15,230,40);
     ctx.stroke();
     ctx.fill();
@@ -88,10 +104,12 @@ function display_action() {
     ctx.fillStyle = "black";
     ctx.fillText("earthquake", beg_rect+5, 40, 220);
     ctx.closePath();
+}
 
-    // tornado
+function tornado_button() {
     ctx.beginPath();
-    ctx.fillStyle = "white"
+    ctx.clearRect(beg_rect,65,230,40)
+    ctx.fillStyle = (tornado_obj.last_use + tornado_obj.load_time > tic ? "#b8b8b8" : "white");
     ctx.rect(beg_rect,65,230,40);
     ctx.stroke();
     ctx.fill();
@@ -99,10 +117,12 @@ function display_action() {
     ctx.fillStyle = "black";
     ctx.fillText("tornado", beg_rect+5, 90, 220);
     ctx.closePath();
+}
 
-    // eruption
+function eruption_button() {
     ctx.beginPath();
-    ctx.fillStyle = "white"
+    ctx.clearRect(beg_rect,115,230,40)
+    ctx.fillStyle = (eruption_obj.last_use + eruption_obj.load_time > tic ? "#b8b8b8" : "white");
     ctx.rect(beg_rect,115,230,40);
     ctx.stroke();
     ctx.fill();
@@ -110,10 +130,12 @@ function display_action() {
     ctx.fillStyle = "black";
     ctx.fillText("eruption", beg_rect+5, 140, 220);
     ctx.closePath();
+}
 
-    // lightning
+function lightning_button() {
     ctx.beginPath();
-    ctx.fillStyle = "white"
+    ctx.clearRect(beg_rect,165,230,40)
+    ctx.fillStyle = (lightning_obj.last_use + lightning_obj.load_time > tic ? "#b8b8b8" : "white");
     ctx.rect(beg_rect,165,230,40);
     ctx.stroke();
     ctx.fill();
@@ -121,10 +143,12 @@ function display_action() {
     ctx.fillStyle = "black";
     ctx.fillText("lightning", beg_rect+5, 190, 220);
     ctx.closePath();
+}
 
-    // typhoon
+function typhoon_button() {
     ctx.beginPath();
-    ctx.fillStyle = "white"
+    ctx.clearRect(beg_rect,215,230,40)
+    ctx.fillStyle = (typhoon_obj.last_use + typhoon_obj.load_time > tic ? "#b8b8b8" : "white");
     ctx.rect(beg_rect,215,230,40);
     ctx.stroke();
     ctx.fill();
@@ -132,7 +156,6 @@ function display_action() {
     ctx.fillStyle = "black";
     ctx.fillText("typhoon", beg_rect+5, 240, 220);
     ctx.closePath();
-
 }
 
 function display_statistics() {
@@ -173,38 +196,44 @@ function display_inhabitants_block() {
 
 /* ------- ATTACKS ------- */
 function earthquake() {
+    if (earthquake_obj.last_use + earthquake_obj.load_time > tic) return;
+    console.log("launch earthquake");
     var pos = Math.floor(Math.random() * game_width);
-    base_attack(pos-100, pos+100);
+    base_attack(pos, 100);
+    earthquake_obj.last_use = tic;
 }
 
 function tornado() {
-    var start,end;
+    if (tornado_obj.last_use + tornado_obj.load_time > tic) return;
     var pos = Math.floor(Math.random() * game_width);
-    var pos2 = (Math.random() > 0.5 ? pos + 100 : pos - 100);
-    if (pos > pos2) {
-        start = pos2; end = pos;
-    } else {
-        start = pos; end = pos2;
-    }
-    base_attack(start, end)
+    base_attack(pos, 50)
+    tornado_obj.last_use = tic;
 }
 
 function eruption() {
+    if (eruption_obj.last_use + eruption_obj.load_time > tic) return;
     var pos = Math.floor(Math.random() * game_width);
-    base_attack(pos-25, pos+25);
+    base_attack(pos, 25);
+    eruption_obj.last_use = tic;
 }
 
 function lightning() {
+    if (lightning_obj.last_use + lightning_obj.load_time > tic) return;
     var pos = Math.floor(Math.random() * game_width);
-    base_attack(pos,pos+2);
+    base_attack(pos, 1);
+    lightning_obj.last_use = tic;
 }
 
 function typhoon() {
+    if (typhoon_obj.last_use + typhoon_obj.load_time > tic) return;
     var pos = Math.floor(Math.random() * game_width);
-    base_attack(pos-150,pos+150);
+    base_attack(pos, 150);
+    typhoon_obj.last_use = tic;
 }
 
-function base_attack(from, to) {
+function base_attack(from, distance) {
+    var to = from + distance;
+    from -= distance;
     attack_launched++;
     if (blocks_position.some(x => x.x > from && x.x < to)) {
         var current = blocks_position.findIndex(x => x.x > from);
