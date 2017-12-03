@@ -1,4 +1,4 @@
-// World variable
+/* ------- WORLD VARIABLE ------- */
 var game_width = 1280;
 var game_height = 720;
 var one_million = 1000000;
@@ -15,10 +15,13 @@ var attack_launched = 0;
 
 var tic = 0;
 var th = 0;
+/* --------------------------- */
 
-display_background();
+ display_background();
 
 var t = setInterval(runGame,1000);
+
+/* ------- GAME LOGIC ------- */
 function runGame() {
     reproduction();
     resources_consumption();
@@ -26,7 +29,6 @@ function runGame() {
     display_inhabitants_block()
     if (earth_resources <= 0) clearInterval(t);
     if (inhabitant_blocks.call() > 10 && th == 0) th = tic;
-    if (tic%10 == 0) console.log("tic " + tic + ", inhabitant " + inhabitants + " " + inhabitant_blocks.call());
     tic++;
 }
 
@@ -39,7 +41,9 @@ function resources_consumption() {
     earth_resources += 1000;
     if (earth_resources < 0) earth_resources = 0;
 }
+/* --------------------------- */
 
+/* ------- DISPLAY ------- */
 function display_background() {
     // console.log("display background: " + tic);
     // background
@@ -165,8 +169,9 @@ function display_inhabitants_block() {
         blocks_position.sort(function(a,b){return a.x>b.x;});
     }
 }
+/* --------------------------- */
 
-// Attacks function
+/* ------- ATTACKS ------- */
 function earthquake() {
     var pos = Math.floor(Math.random() * game_width);
     base_attack(pos-100, pos+100);
@@ -191,7 +196,6 @@ function eruption() {
 
 function lightning() {
     var pos = Math.floor(Math.random() * game_width);
-    console.log(pos);
     base_attack(pos,pos+2);
 }
 
@@ -204,7 +208,6 @@ function base_attack(from, to) {
     attack_launched++;
     if (blocks_position.some(x => x.x > from && x.x < to)) {
         var current = blocks_position.findIndex(x => x.x > from);
-        console.log("current is " + current);
         while (current < blocks_position.length && blocks_position[current].x < to) {
             ctx.beginPath();
             ctx.rect(blocks_position[current].x, blocks_position[current].y, 20, 20);
@@ -220,10 +223,9 @@ function base_attack(from, to) {
         }
     }
 }
+/* --------------------------- */
 
-
-// Utils
-
+/* ------- UTILS ------- */
 function y_on_earth(x) {
     var z = x - 640;
     if (x < game_width/2) {
@@ -242,3 +244,15 @@ function how_many(value) {
     }
     return Math.floor(value/(1000*one_million)) + " B";
 }
+/* --------------------------- */
+
+document.getElementById("game").addEventListener("click", function(event) {
+    var rect = c.getBoundingClientRect();
+    var X = Math.floor((event.clientX-rect.left)/(rect.right-rect.left) * game_width);
+    var Y = Math.floor((event.clientY-rect.top)/(rect.bottom-rect.top) * game_height);
+    if (X > game_width-245 && X < game_width-10 && Y > 15 && Y < 55) earthquake();
+    if (X > game_width-245 && X < game_width-10 && Y > 65 && Y < 105) tornado();
+    if (X > game_width-245 && X < game_width-10 && Y > 115 && Y < 155) eruption();
+    if (X > game_width-245 && X < game_width-10 && Y > 165 && Y < 205) lightning();
+    if (X > game_width-245 && X < game_width-10 && Y > 215 && Y < 255) typhoon();
+}, false);
