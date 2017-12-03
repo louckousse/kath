@@ -67,10 +67,68 @@ function display_action() {
     ctx.beginPath();
     ctx.fillStyle = "grey";
     // ctx.rect(5,5,200,300);
-    ctx.rect(game_width-255,5,250,300);
+    ctx.rect(game_width-255,5,250,260);
     ctx.stroke();
     ctx.fill();
     ctx.closePath();
+
+    var beg_rect = game_width - 245;
+
+    // earthquake
+    ctx.beginPath();
+    ctx.fillStyle = "white"
+    ctx.rect(beg_rect,15,230,40);
+    ctx.stroke();
+    ctx.fill();
+    ctx.font = "25px serif";
+    ctx.fillStyle = "black";
+    ctx.fillText("earthquake", beg_rect+5, 40, 220);
+    ctx.closePath();
+
+    // tornado
+    ctx.beginPath();
+    ctx.fillStyle = "white"
+    ctx.rect(beg_rect,65,230,40);
+    ctx.stroke();
+    ctx.fill();
+    ctx.font = "25px serif";
+    ctx.fillStyle = "black";
+    ctx.fillText("tornado", beg_rect+5, 90, 220);
+    ctx.closePath();
+
+    // eruption
+    ctx.beginPath();
+    ctx.fillStyle = "white"
+    ctx.rect(beg_rect,115,230,40);
+    ctx.stroke();
+    ctx.fill();
+    ctx.font = "25px serif";
+    ctx.fillStyle = "black";
+    ctx.fillText("eruption", beg_rect+5, 140, 220);
+    ctx.closePath();
+
+    // lightning
+    ctx.beginPath();
+    ctx.fillStyle = "white"
+    ctx.rect(beg_rect,165,230,40);
+    ctx.stroke();
+    ctx.fill();
+    ctx.font = "25px serif";
+    ctx.fillStyle = "black";
+    ctx.fillText("lightning", beg_rect+5, 190, 220);
+    ctx.closePath();
+
+    // typhoon
+    ctx.beginPath();
+    ctx.fillStyle = "white"
+    ctx.rect(beg_rect,215,230,40);
+    ctx.stroke();
+    ctx.fill();
+    ctx.font = "25px serif";
+    ctx.fillStyle = "black";
+    ctx.fillText("typhoon", beg_rect+5, 240, 220);
+    ctx.closePath();
+
 }
 
 function display_statistics() {
@@ -108,29 +166,57 @@ function display_inhabitants_block() {
     }
 }
 
-function y_on_earth(x) {
-    var z = x - 640;
-    if (x < game_width/2) {
-        return (game_height-20) - 150/(game_width/1.5) * (Math.sqrt(Math.abs(z*z - Math.pow(game_width/1.5,2))));
-    } else {
-        return (game_height-20) - 150/(game_width/1.5) * (Math.sqrt(Math.abs(z*z - Math.pow(game_width/1.5,2))));
-    }
-}
-
 // Attacks function
 function earthquake() {
-    var pos = Math.random() * game_width;
-    if (blocks_position.some(x => x.x > (pos - 100) && x.x < (pos+100))) {
-        var current = blocks_position.findIndex(x => x.x > pos-100);
-        while (current < blocks_position.length && blocks_position[current].x < pos+100) {
-            console.log("test");
+    var pos = Math.floor(Math.random() * game_width);
+    base_attack(pos-100, pos+100);
+}
+
+function tornado() {
+    var start,end;
+    var pos = Math.floor(Math.random() * game_width);
+    var pos2 = (Math.random() > 0.5 ? pos + 100 : pos - 100);
+    if (pos > pos2) {
+        start = pos2; end = pos;
+    } else {
+        start = pos; end = pos2;
+    }
+    base_attack(start, end)
+}
+
+function eruption() {
+    var pos = Math.floor(Math.random() * game_width);
+    base_attack(pos-25, pos+25);
+}
+
+function lightning() {
+    var pos = Math.floor(Math.random() * game_width);
+    console.log(pos);
+    base_attack(pos,pos+2);
+}
+
+function typhoon() {
+    var pos = Math.floor(Math.random() * game_width);
+    base_attack(pos-150,pos+150);
+}
+
+function base_attack(from, to) {
+    attack_launched++;
+    if (blocks_position.some(x => x.x > from && x.x < to)) {
+        var current = blocks_position.findIndex(x => x.x > from);
+        console.log("current is " + current);
+        while (current < blocks_position.length && blocks_position[current].x < to) {
             ctx.beginPath();
             ctx.rect(blocks_position[current].x, blocks_position[current].y, 20, 20);
             ctx.fillStyle = "blue";
             ctx.fill();
             ctx.closePath();
             inhabitants = (inhabitants - inhabitant_block_value > 0) ? inhabitants - inhabitant_block_value : 100;
-            current++;
+            inhabitant_killed += inhabitant_block_value;
+            blocks_position.splice(current,1);
+            display_statistics();
+            // var wait = 50 + new Date().getTime();
+            // while (new Date().getTime() < wait) {}
         }
     }
 }
