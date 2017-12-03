@@ -10,6 +10,8 @@ var c = document.getElementById("game");
 var ctx = c.getContext("2d");
 var ib_displayed = 0;
 var blocks_position = new Array();
+var inhabitant_killed = 0;
+var attack_launched = 0;
 
 var tic = 0;
 var th = 0;
@@ -74,8 +76,8 @@ function display_action() {
 function display_statistics() {
     ctx.beginPath();
     ctx.fillStyle = "grey";
-    ctx.clearRect(5,5,250,300);
-    ctx.rect(5,5,250,300);
+    ctx.clearRect(5,5,250,260);
+    ctx.rect(5,5,250,260);
     ctx.stroke();
     ctx.fill();
     ctx.closePath();
@@ -83,8 +85,10 @@ function display_statistics() {
     ctx.beginPath();
     ctx.font = "25px serif";
     ctx.fillStyle = "white";
-    ctx.fillText("people: " + inhabitants, 10, 30, 240);
-    ctx.fillText("resources: " + earth_resources, 10, 60, 240);
+    ctx.fillText("people: " + how_many(inhabitants), 10, 35, 240);
+    ctx.fillText("resources: " + how_many(earth_resources), 10, 80, 240);
+    ctx.fillText("killed: " + how_many(inhabitant_killed), 10, 125, 240);
+    ctx.fillText("Attacks: " + how_many(attack_launched), 10, 170, 240);
     ctx.closePath();
 }
 
@@ -129,4 +133,26 @@ function earthquake() {
             current++;
         }
     }
+}
+
+
+// Utils
+
+function y_on_earth(x) {
+    var z = x - 640;
+    if (x < game_width/2) {
+        return (game_height-20) - 150/(game_width/1.5) * (Math.sqrt(Math.abs(z*z - Math.pow(game_width/1.5,2))));
+    } else {
+        return (game_height-20) - 150/(game_width/1.5) * (Math.sqrt(Math.abs(z*z - Math.pow(game_width/1.5,2))));
+    }
+}
+
+function how_many(value) {
+    if (value <= 1000) return value;
+    if (value < one_million) return Math.floor(value/1000) + "," + (value%1000 > 0 ?
+        (value%1000 > 10 ? (value%1000 > 100 ? value%1000 : "0"+value%1000) : "00"+value%1000) : "000");
+    if (value < 1000*one_million) {
+        return Math.floor(value/one_million) + " M";
+    }
+    return Math.floor(value/(1000*one_million)) + " B";
 }
