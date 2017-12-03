@@ -78,4 +78,55 @@ function display_statistics() {
     ctx.rect(5,5,250,300);
     ctx.stroke();
     ctx.fill();
+    ctx.closePath();
+
+    ctx.beginPath();
+    ctx.font = "25px serif";
+    ctx.fillStyle = "white";
+    ctx.fillText("people: " + inhabitants, 10, 30, 240);
+    ctx.fillText("resources: " + earth_resources, 10, 60, 240);
+    ctx.closePath();
+}
+
+function display_inhabitants_block() {
+    while (ib_displayed < inhabitant_blocks.call()) {
+        ctx.beginPath();
+        var x = Math.floor(Math.random() * 1270);
+        var y = Math.floor(y_on_earth(x));
+        ctx.rect(x,y,20,20)
+        ctx.fillStyle = "red";
+        ctx.fill();
+        // ctx.stroke();
+        ctx.closePath();
+        ib_displayed++;
+        blocks_position.push({x,y});
+        blocks_position.sort(function(a,b){return a.x>b.x;});
+    }
+}
+
+function y_on_earth(x) {
+    var z = x - 640;
+    if (x < game_width/2) {
+        return (game_height-20) - 150/(game_width/1.5) * (Math.sqrt(Math.abs(z*z - Math.pow(game_width/1.5,2))));
+    } else {
+        return (game_height-20) - 150/(game_width/1.5) * (Math.sqrt(Math.abs(z*z - Math.pow(game_width/1.5,2))));
+    }
+}
+
+// Attacks function
+function earthquake() {
+    var pos = Math.random() * game_width;
+    if (blocks_position.some(x => x.x > (pos - 100) && x.x < (pos+100))) {
+        var current = blocks_position.findIndex(x => x.x > pos-100);
+        while (current < blocks_position.length && blocks_position[current].x < pos+100) {
+            console.log("test");
+            ctx.beginPath();
+            ctx.rect(blocks_position[current].x, blocks_position[current].y, 20, 20);
+            ctx.fillStyle = "blue";
+            ctx.fill();
+            ctx.closePath();
+            inhabitants = (inhabitants - inhabitant_block_value > 0) ? inhabitants - inhabitant_block_value : 100;
+            current++;
+        }
+    }
 }
