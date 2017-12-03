@@ -2,25 +2,27 @@
 var game_width = 1280;
 var game_height = 720;
 var one_million = 1000000;
-var inhabitants = one_million;
 var inhabitant_block_value = 10*one_million;
 var inhabitant_blocks = () =>{return Math.ceil(inhabitants/inhabitant_block_value);};
-var earth_resources = one_million;
 var c = document.getElementById("game");
 var ctx = c.getContext("2d");
+var t;
+/* --------------------------- */
+/* ------- GAME VARIABLE ------- */
+var inhabitants = one_million;
+var earth_resources = one_million;
 var ib_displayed = 0;
 var blocks_position = new Array();
 var inhabitant_killed = 0;
 var attack_launched = 0;
+var tic = 0;
+var th = 0;
 var earthquake_obj = {last_use : 1, load_time : 20};
 var tornado_obj = {last_use : 1, load_time : 15};
 var eruption_obj = {last_use : 1, load_time : 10};
 var lightning_obj = {last_use : 1, load_time : 5};
 var typhoon_obj = {last_use : 1, load_time : 30};
 var beg_rect = game_width - 245;
-
-var tic = 0;
-var th = 0;
 /* --------------------------- */
 
 display_startscreen();
@@ -30,7 +32,11 @@ function runGame() {
     resources_consumption();
     display_statistics();
     display_inhabitants_block();
-    if (earth_resources <= 0) clearInterval(t);
+    if (earth_resources <= 0) {
+        clearInterval(t);
+        display_endscreen();
+        return;
+    }
     earthquake_button();
     tornado_button();
     eruption_button();
@@ -62,11 +68,66 @@ function launch_game() {
         if (X > game_width-245 && X < game_width-10 && Y > 215 && Y < 255) typhoon();
     }, false);
     display_background();
-    var t = setInterval(runGame,100);
+    t = setInterval(runGame,100);
 }
 /* --------------------------- */
 
 /* ------- DISPLAY ------- */
+function display_endscreen() {
+    ctx.beginPath();
+    ctx.rect(0,0,1280,720);
+    ctx.fillStyle = 'rgba(225,225,225,0.8)';
+    ctx.fill();
+    ctx.closePath();
+
+    ctx.beginPath();
+    ctx.font = "95px serif";
+    ctx.fillStyle = "RED";
+    ctx.fillText("HUMANS KILLED THE EARTH", 10, 250, 1260);
+    ctx.fillText("SHAME ON THEM", 200, 350);
+    ctx.font = "55px serif";
+    ctx.fillStyle = "black";
+    ctx.fillText("By the way, you survived for " + tic + " years...", 110, 450);
+    ctx.closePath();
+
+    ctx.beginPath();
+    ctx.fillStyle = "black";
+    ctx.rect(515,500,300,100);
+    ctx.fill();
+    ctx.closePath();
+
+    ctx.beginPath();
+    ctx.font = "65px serif";
+    ctx.fillStyle = "white";
+    ctx.fillText("Again?..", 535, 575);
+    ctx.closePath();
+
+    function restart_event(event) {
+        var rect = c.getBoundingClientRect();
+        var X = Math.floor((event.clientX-rect.left)/(rect.right-rect.left) * game_width);
+        var Y = Math.floor((event.clientY-rect.top)/(rect.bottom-rect.top) * game_height);
+        if (X > 515 && X < 815 && Y > 500 && Y < 600) {
+            this.removeEventListener("click", restart_event);
+            inhabitants = one_million;
+            earth_resources = one_million;
+            ib_displayed = 0;
+            blocks_position = new Array();
+            inhabitant_killed = 0;
+            attack_launched = 0;
+            tic = 0;
+            th = 0;
+            earthquake_obj = {last_use : 1, load_time : 20};
+            tornado_obj = {last_use : 1, load_time : 15};
+            eruption_obj = {last_use : 1, load_time : 10};
+            lightning_obj = {last_use : 1, load_time : 5};
+            typhoon_obj = {last_use : 1, load_time : 30};
+            beg_rect = game_width - 245;
+            launch_game();
+        }
+    }
+    c.addEventListener("click", restart_event);
+}
+
 function display_startscreen() {
     var grd = ctx.createLinearGradient(game_width/2,game_height/3,game_width/2,0);
     grd.addColorStop(0,"blue");
@@ -109,7 +170,6 @@ function display_startscreen() {
             launch_game();
         }
     }
-
     c.addEventListener("click", start_event);
 }
 
