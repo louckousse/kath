@@ -1,5 +1,18 @@
+// World variable
 var game_width = 1280;
 var game_height = 720;
+var one_million = 1000000;
+var inhabitants = one_million;
+var inhabitant_block_value = 10*one_million;
+var inhabitant_blocks = () =>{return Math.ceil(inhabitants/inhabitant_block_value);};
+var earth_resources = one_million;
+var c = document.getElementById("game");
+var ctx = c.getContext("2d");
+var ib_displayed = 0;
+var blocks_position = new Array();
+
+var tic = 0;
+var th = 0;
 
 display_background();
 
@@ -7,7 +20,7 @@ function display_background() {
     var c = document.getElementById("game");
 
     // background
-    var ctx = c.getContext("2d");
+    // var ctx = c.getContext("2d");
     var grd = ctx.createLinearGradient(game_width/2,game_height/3,game_width/2,0);
     grd.addColorStop(0,"blue");
     grd.addColorStop(1,"white");
