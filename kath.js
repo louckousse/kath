@@ -19,24 +19,50 @@ display_background();
 function display_background() {
     var c = document.getElementById("game");
 
+function resources_consumption() {
+    earth_resources -= inhabitant_blocks.call() * 100;
+    earth_resources += 1000;
+    if (earth_resources < 0) earth_resources = 0;
+}
+
+function display_background() {
+    // console.log("display background: " + tic);
     // background
     // var ctx = c.getContext("2d");
     var grd = ctx.createLinearGradient(game_width/2,game_height/3,game_width/2,0);
     grd.addColorStop(0,"blue");
     grd.addColorStop(1,"white");
+    ctx.beginPath();
     ctx.fillStyle = grd;
     ctx.fillRect(0,0,game_width,game_height);
-
-    // statistics block
-    var ctx = c.getContext("2d");
-    ctx.fillStyle = "grey";
-    ctx.rect(5,5,200,300);
-    ctx.rect(game_width-205,5,200,300);
-    ctx.stroke();
-    ctx.fill();
+    ctx.closePath();
 
     ctx.beginPath();
     ctx.fillStyle = "green";
     ctx.ellipse(game_width/2, game_height, game_width/1.5, 150, 0, Math.PI, 3 * Math.PI);
+    ctx.closePath();
+    ctx.fill();
+
+    display_action();
+    display_statistics();
+}
+
+function display_action() {
+    // var ctx = c.getContext("2d");
+    ctx.beginPath();
+    ctx.fillStyle = "grey";
+    // ctx.rect(5,5,200,300);
+    ctx.rect(game_width-255,5,250,300);
+    ctx.stroke();
+    ctx.fill();
+    ctx.closePath();
+}
+
+function display_statistics() {
+    ctx.beginPath();
+    ctx.fillStyle = "grey";
+    ctx.clearRect(5,5,250,300);
+    ctx.rect(5,5,250,300);
+    ctx.stroke();
     ctx.fill();
 }
