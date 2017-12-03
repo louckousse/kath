@@ -23,9 +23,7 @@ var tic = 0;
 var th = 0;
 /* --------------------------- */
 
- display_background();
-
-var t = setInterval(runGame,100);
+display_startscreen();
 
 /* ------- GAME LOGIC ------- */
 function runGame() {
@@ -51,13 +49,74 @@ function resources_consumption() {
     earth_resources += 100;
     if (earth_resources < 0) earth_resources = 0;
 }
+
+function launch_game() {
+    document.getElementById("game").addEventListener("click", function(event) {
+        var rect = c.getBoundingClientRect();
+        var X = Math.floor((event.clientX-rect.left)/(rect.right-rect.left) * game_width);
+        var Y = Math.floor((event.clientY-rect.top)/(rect.bottom-rect.top) * game_height);
+        if (X > game_width-245 && X < game_width-10 && Y > 15 && Y < 55) earthquake();
+        if (X > game_width-245 && X < game_width-10 && Y > 65 && Y < 105) tornado();
+        if (X > game_width-245 && X < game_width-10 && Y > 115 && Y < 155) eruption();
+        if (X > game_width-245 && X < game_width-10 && Y > 165 && Y < 205) lightning();
+        if (X > game_width-245 && X < game_width-10 && Y > 215 && Y < 255) typhoon();
+    }, false);
+    display_background();
+    var t = setInterval(runGame,100);
+}
 /* --------------------------- */
 
 /* ------- DISPLAY ------- */
+function display_startscreen() {
+    var grd = ctx.createLinearGradient(game_width/2,game_height/3,game_width/2,0);
+    grd.addColorStop(0,"blue");
+    grd.addColorStop(1,"white");
+    ctx.beginPath();
+    ctx.fillStyle = grd;
+    ctx.fillRect(0,0,game_width,game_height);
+    ctx.closePath();
+
+    ctx.beginPath();
+    ctx.fillStyle = "green";
+    ctx.ellipse(game_width/2, game_height, game_width/1.5, 150, 0, Math.PI, 3 * Math.PI);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.fillStyle = "black";
+    ctx.rect(540,400,250,100);
+    ctx.fill();
+    ctx.closePath();
+
+    ctx.beginPath();
+    ctx.font = "95px serif";
+    ctx.fillStyle = "RED";
+    ctx.fillText("KILL ALL TINY HUMANS", 20, 200);
+    ctx.closePath();
+
+    ctx.beginPath();
+    ctx.font = "65px serif";
+    ctx.fillStyle = "white";
+    ctx.fillText("START", 550, 475);
+    ctx.closePath();
+
+    function start_event(event) {
+        var rect = c.getBoundingClientRect();
+        var X = Math.floor((event.clientX-rect.left)/(rect.right-rect.left) * game_width);
+        var Y = Math.floor((event.clientY-rect.top)/(rect.bottom-rect.top) * game_height);
+        if (X > 540 && X < 740 && Y > 400 && Y < 500) {
+            this.removeEventListener("click", start_event);
+            launch_game();
+        }
+    }
+
+    c.addEventListener("click", start_event);
+}
+
 function display_background() {
-    // console.log("display background: " + tic);
-    // background
-    // var ctx = c.getContext("2d");
+
+    ctx.clearRect(0,0,1280,720);
+
     var grd = ctx.createLinearGradient(game_width/2,game_height/3,game_width/2,0);
     grd.addColorStop(0,"blue");
     grd.addColorStop(1,"white");
@@ -77,10 +136,8 @@ function display_background() {
 }
 
 function display_action() {
-    // var ctx = c.getContext("2d");
     ctx.beginPath();
     ctx.fillStyle = "grey";
-    // ctx.rect(5,5,200,300);
     ctx.rect(game_width-255,5,250,260);
     ctx.stroke();
     ctx.fill();
@@ -197,7 +254,6 @@ function display_inhabitants_block() {
 /* ------- ATTACKS ------- */
 function earthquake() {
     if (earthquake_obj.last_use + earthquake_obj.load_time > tic) return;
-    console.log("launch earthquake");
     var pos = Math.floor(Math.random() * game_width);
     base_attack(pos, 100);
     earthquake_obj.last_use = tic;
@@ -274,14 +330,3 @@ function how_many(value) {
     return Math.floor(value/(1000*one_million)) + " B";
 }
 /* --------------------------- */
-
-document.getElementById("game").addEventListener("click", function(event) {
-    var rect = c.getBoundingClientRect();
-    var X = Math.floor((event.clientX-rect.left)/(rect.right-rect.left) * game_width);
-    var Y = Math.floor((event.clientY-rect.top)/(rect.bottom-rect.top) * game_height);
-    if (X > game_width-245 && X < game_width-10 && Y > 15 && Y < 55) earthquake();
-    if (X > game_width-245 && X < game_width-10 && Y > 65 && Y < 105) tornado();
-    if (X > game_width-245 && X < game_width-10 && Y > 115 && Y < 155) eruption();
-    if (X > game_width-245 && X < game_width-10 && Y > 165 && Y < 205) lightning();
-    if (X > game_width-245 && X < game_width-10 && Y > 215 && Y < 255) typhoon();
-}, false);
