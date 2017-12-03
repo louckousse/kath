@@ -16,8 +16,21 @@ var th = 0;
 
 display_background();
 
-function display_background() {
-    var c = document.getElementById("game");
+var t = setInterval(runGame,1000);
+function runGame() {
+    reproduction();
+    resources_consumption();
+    display_statistics();
+    display_inhabitants_block()
+    if (earth_resources <= 0) clearInterval(t);
+    if (inhabitant_blocks.call() > 10 && th == 0) th = tic;
+    if (tic%10 == 0) console.log("tic " + tic + ", inhabitant " + inhabitants + " " + inhabitant_blocks.call());
+    tic++;
+}
+
+function reproduction() {
+    inhabitants = Math.ceil(inhabitants * 1.3);
+}
 
 function resources_consumption() {
     earth_resources -= inhabitant_blocks.call() * 100;
