@@ -129,48 +129,22 @@ function display_endscreen() {
 }
 
 function display_startscreen() {
-    var grd = ctx.createLinearGradient(game_width/2,game_height/3,game_width/2,0);
-    grd.addColorStop(0,"blue");
-    grd.addColorStop(1,"white");
-    ctx.beginPath();
-    ctx.fillStyle = grd;
-    ctx.fillRect(0,0,game_width,game_height);
-    ctx.closePath();
+    var background_img = new Image();
+    background_img.src = "img/start_screen.png";
+    background_img.onload = function() {
+        ctx.drawImage(background_img, 0, 0);
 
-    ctx.beginPath();
-    ctx.fillStyle = "green";
-    ctx.ellipse(game_width/2, game_height, game_width/1.5, 150, 0, Math.PI, 3 * Math.PI);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.fillStyle = "black";
-    ctx.rect(540,400,250,100);
-    ctx.fill();
-    ctx.closePath();
-
-    ctx.beginPath();
-    ctx.font = "95px serif";
-    ctx.fillStyle = "RED";
-    ctx.fillText("KILL ALL TINY HUMANS", 20, 200);
-    ctx.closePath();
-
-    ctx.beginPath();
-    ctx.font = "65px serif";
-    ctx.fillStyle = "white";
-    ctx.fillText("START", 550, 475);
-    ctx.closePath();
-
-    function start_event(event) {
-        var rect = c.getBoundingClientRect();
-        var X = Math.floor((event.clientX-rect.left)/(rect.right-rect.left) * game_width);
-        var Y = Math.floor((event.clientY-rect.top)/(rect.bottom-rect.top) * game_height);
-        if (X > 540 && X < 740 && Y > 400 && Y < 500) {
-            this.removeEventListener("click", start_event);
-            launch_game();
+        function start_event(event) {
+            var rect = c.getBoundingClientRect();
+            var X = Math.floor((event.clientX-rect.left)/(rect.right-rect.left) * game_width);
+            var Y = Math.floor((event.clientY-rect.top)/(rect.bottom-rect.top) * game_height);
+            if (X > 1000 && X < 1200 && Y > 525 && Y < 630) {
+                this.removeEventListener("click", start_event);
+                launch_game();
+            }
         }
+        c.addEventListener("click", start_event);
     }
-    c.addEventListener("click", start_event);
 }
 
 function display_background() {
