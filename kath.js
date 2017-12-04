@@ -7,22 +7,27 @@ var inhabitant_blocks = () =>{return Math.ceil(inhabitants/inhabitant_block_valu
 var c = document.getElementById("game");
 var ctx = c.getContext("2d");
 var t;
+var background_img = new Image();
+background_img.src = "img/background.png";
+var human_img = new Image();
+human_img.src = "img/human.png";
 /* --------------------------- */
 /* ------- GAME VARIABLE ------- */
-var inhabitants = one_million;
-var earth_resources = one_million;
-var ib_displayed = 0;
-var blocks_position = new Array();
-var inhabitant_killed = 0;
-var attack_launched = 0;
-var tic = 0;
-var th = 0;
-var lightning_obj = {last_use : 1, load_time : 5};
-var eruption_obj = {last_use : 1, load_time : 10};
-var tornado_obj = {last_use : 1, load_time : 15};
-var earthquake_obj = {last_use : 1, load_time : 20};
-var typhoon_obj = {last_use : 1, load_time : 30};
-var beg_rect = game_width - 245;
+var inhabitants;
+var earth_resources;
+var ib_displayed;
+var blocks_position;
+var inhabitant_killed;
+var attack_launched;
+var tic;
+var th;
+var lightning_obj;
+var eruption_obj;
+var tornado_obj;
+var earthquake_obj;
+var typhoon_obj;
+var beg_rect;
+var wait_for_procreation;
 /* --------------------------- */
 
 display_startscreen();
@@ -47,7 +52,8 @@ function runGame() {
 }
 
 function reproduction() {
-    inhabitants = Math.ceil(inhabitants * 1.1);
+    if (wait_for_procreation < tic)
+        inhabitants = inhabitants > 10*one_million ? Math.ceil(inhabitants * 1.1) : Math.ceil(inhabitants * 1.9);
 }
 
 function resources_consumption() {
@@ -57,6 +63,7 @@ function resources_consumption() {
 }
 
 function launch_game() {
+    init_world();
     document.getElementById("game").addEventListener("click", function(event) {
         var rect = c.getBoundingClientRect();
         var X = Math.floor((event.clientX-rect.left)/(rect.right-rect.left) * game_width);
@@ -69,6 +76,24 @@ function launch_game() {
     }, false);
     display_background();
     t = setInterval(runGame,100);
+}
+
+function init_world() {
+    inhabitants = one_million;
+    earth_resources = one_million;
+    ib_displayed = 0;
+    blocks_position = new Array();
+    inhabitant_killed = 0;
+    attack_launched = 0;
+    tic = 0;
+    th = 0;
+    earthquake_obj = {last_use : 1, load_time : 20};
+    tornado_obj = {last_use : 1, load_time : 15};
+    eruption_obj = {last_use : 1, load_time : 10};
+    lightning_obj = {last_use : 1, load_time : 5};
+    typhoon_obj = {last_use : 1, load_time : 30};
+    beg_rect = game_width - 245;
+    wait_for_procreation = 0;
 }
 /* --------------------------- */
 
@@ -108,20 +133,7 @@ function display_endscreen() {
         var Y = Math.floor((event.clientY-rect.top)/(rect.bottom-rect.top) * game_height);
         if (X > 515 && X < 815 && Y > 500 && Y < 600) {
             this.removeEventListener("click", restart_event);
-            inhabitants = one_million;
-            earth_resources = one_million;
-            ib_displayed = 0;
-            blocks_position = new Array();
-            inhabitant_killed = 0;
-            attack_launched = 0;
-            tic = 0;
-            th = 0;
-            earthquake_obj = {last_use : 1, load_time : 20};
-            tornado_obj = {last_use : 1, load_time : 15};
-            eruption_obj = {last_use : 1, load_time : 10};
-            lightning_obj = {last_use : 1, load_time : 5};
-            typhoon_obj = {last_use : 1, load_time : 30};
-            beg_rect = game_width - 245;
+            init_world();
             launch_game();
         }
     }
@@ -129,10 +141,10 @@ function display_endscreen() {
 }
 
 function display_startscreen() {
-    var background_img = new Image();
-    background_img.src = "img/start_screen.png";
-    background_img.onload = function() {
-        ctx.drawImage(background_img, 0, 0);
+    var start_screen = new Image();
+    start_screen.src = "img/start_screen.png";
+    start_screen.onload = function() {
+        ctx.drawImage(start_screen, 0, 0);
 
         function start_event(event) {
             var rect = c.getBoundingClientRect();
@@ -149,8 +161,6 @@ function display_startscreen() {
 
 function display_background() {
     ctx.clearRect(0,0,1280,720);
-    var background_img = new Image();
-    background_img.src = "img/background.png";
     ctx.drawImage(background_img, 0, 0);
 
     display_action();
@@ -258,22 +268,20 @@ function display_statistics() {
 }
 
 function display_inhabitants_block() {
-    while (ib_displayed < inhabitant_blocks.call()) {
-        ctx.beginPath();
-        var x = Math.floor(Math.random() * 1270);
-        var y = Math.floor(y_on_earth(x));
-        var human_img = new Image();
-        human_img.src = "img/human.png";
-        ctx.drawImage(human_img, x, y, 50, 50);
+    while (ib_displayed < inhabitant_blocks.call() || blocks_position.length == 0) {
         ib_displayed++;
-        blocks_position.push({x,y});
-        blocks_position.sort(function(a,b){return a.x>b.x;});
+        if (blocks_position.length < 500) {
+            ctx.beginPath();
+            var x = Math.floor(Math.random() * 1270);
+            var y = Math.floor(y_on_earth(x));
+            ctx.drawImage(human_img, x, y, 50, 50);
+            blocks_position.push({x,y});
+            blocks_position.sort(function(a,b){return a.x>b.x;});
+        }
     }
 }
 
 function redraw_blocks() {
-    var human_img = new Image();
-    human_img.src = "img/human.png";
     for (var i = 0; i < blocks_position.length; i++) {
         var x = blocks_position[i].x;
         var y = blocks_position[i].y;
@@ -333,9 +341,11 @@ function base_attack(from, distance) {
         while (current < blocks_position.length && blocks_position[current].x < to) {
             var img = ctx.createImageData(blocks_position[current].x, blocks_position[current].y);
             for (var i = img.data.length; --i >= 0;) img.data[i] = 0;
+            inhabitant_killed += (inhabitants > inhabitant_block_value ? inhabitant_block_value : inhabitants -100);
             inhabitants = (inhabitants - inhabitant_block_value > 0) ? inhabitants - inhabitant_block_value : 100;
-            inhabitant_killed += inhabitant_block_value;
+            earth_resources += 10000;
             blocks_position.splice(current,1);
+            wait_for_procreation = tic + 5;
             display_statistics();
         }
         redraw_game();
@@ -351,11 +361,13 @@ function y_on_earth(x) {
 
 function how_many(value) {
     if (value <= 1000) return value;
-    if (value < one_million) return Math.floor(value/1000) + "," + (value%1000 > 0 ?
-        (value%1000 > 10 ? (value%1000 > 100 ? value%1000 : "0"+value%1000) : "00"+value%1000) : "000");
-    if (value < 1000*one_million) {
-        return Math.floor(value/one_million) + " M";
+    var vl = value + "";
+    if (value < one_million) {
+        return vl.substring(0,vl.length-3) + "," + vl.substring(vl.length-3);
     }
-    return Math.floor(value/(1000*one_million)) + " B";
+    if (value < 1000*one_million) {
+        return vl.substring(0,vl.length-6) + "," + vl.substring(vl.length-6, vl.length-4) + " M";
+    }
+    return vl.substring(0,vl.length-9) + "," + vl.substring(vl.length-9, vl.length-7) + " B";
 }
 /* --------------------------- */
