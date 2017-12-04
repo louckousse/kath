@@ -11,6 +11,10 @@ var background_img = new Image();
 background_img.src = "img/background.png";
 var human_img = new Image();
 human_img.src = "img/human.png";
+var attack_available = new Image();
+attack_available.src = "img/attack.png"
+var attack_unavailable = new Image();
+attack_unavailable.src = "img/freeze.png"
 /* --------------------------- */
 /* ------- GAME VARIABLE ------- */
 var inhabitants;
@@ -34,6 +38,7 @@ display_startscreen();
 
 /* ------- GAME LOGIC ------- */
 function runGame() {
+    redraw_game();
     resources_consumption();
     display_statistics();
     display_inhabitants_block();
@@ -68,11 +73,11 @@ function launch_game() {
         var rect = c.getBoundingClientRect();
         var X = Math.floor((event.clientX-rect.left)/(rect.right-rect.left) * game_width);
         var Y = Math.floor((event.clientY-rect.top)/(rect.bottom-rect.top) * game_height);
-        if (X > game_width-245 && X < game_width-10 && Y > 15 && Y < 55) lightning();
-        if (X > game_width-245 && X < game_width-10 && Y > 65 && Y < 105) eruption();
-        if (X > game_width-245 && X < game_width-10 && Y > 115 && Y < 155) tornado();
-        if (X > game_width-245 && X < game_width-10 && Y > 165 && Y < 205) earthquake();
-        if (X > game_width-245 && X < game_width-10 && Y > 215 && Y < 255) typhoon();
+        if (X > 770 && X < 812 && Y > 80 && Y < 120) lightning();
+        if (X > 770 && X < 812 && Y > 135 && Y < 185) eruption();
+        if (X > 770 && X < 812 && Y > 190 && Y < 340) tornado();
+        if (X > 770 && X < 812 && Y > 245 && Y < 395) earthquake();
+        if (X > 770 && X < 812 && Y > 300 && Y < 450) typhoon();
     }, false);
     display_background();
     t = setInterval(runGame,100);
@@ -168,13 +173,6 @@ function display_background() {
 }
 
 function display_action() {
-    ctx.beginPath();
-    ctx.fillStyle = "grey";
-    ctx.rect(game_width-255,5,250,260);
-    ctx.stroke();
-    ctx.fill();
-    ctx.closePath();
-
     lightning_button();
     eruption_button();
     tornado_button();
@@ -182,88 +180,49 @@ function display_action() {
     typhoon_button();
 }
 
+function display_statistics() {
+    ctx.beginPath();
+    ctx.font = "25px serif";
+    ctx.fillStyle = "white";
+    ctx.fillText("people: " + how_many(inhabitants), 170, 133, 240);
+    ctx.fillText("resources: " + how_many(earth_resources), 170, 180, 240);
+    ctx.fillText("killed: " + how_many(inhabitant_killed), 170, 225, 240);
+    ctx.fillText("Attacks: " + how_many(attack_launched), 170, 270, 240);
+    ctx.fillText("Years: " + how_many(tic), 170, 320, 240);
+    ctx.closePath();
+}
+
 function lightning_button() {
     ctx.beginPath();
-    ctx.clearRect(beg_rect,15,230,40)
-    ctx.fillStyle = (lightning_obj.last_use + lightning_obj.load_time > tic ? "#b8b8b8" : "white");
-    ctx.rect(beg_rect,15,230,40);
-    ctx.stroke();
-    ctx.fill();
-    ctx.font = "25px serif";
-    ctx.fillStyle = "black";
-    ctx.fillText("lightning", beg_rect+5, 40, 220);
+    ctx.drawImage((lightning_obj.last_use + lightning_obj.load_time > tic ? attack_unavailable : attack_available),
+                740,50,100,100);
     ctx.closePath();
 }
 
 function eruption_button() {
     ctx.beginPath();
-    ctx.clearRect(beg_rect,65,230,40)
-    ctx.fillStyle = (eruption_obj.last_use + eruption_obj.load_time > tic ? "#b8b8b8" : "white");
-    ctx.rect(beg_rect,65,230,40);
-    ctx.stroke();
-    ctx.fill();
-    ctx.font = "25px serif";
-    ctx.fillStyle = "black";
-    ctx.fillText("eruption", beg_rect+5, 90, 220);
+    ctx.drawImage((eruption_obj.last_use + eruption_obj.load_time > tic ? attack_unavailable : attack_available),
+                740,105,100,100);
     ctx.closePath();
 }
 
 function tornado_button() {
     ctx.beginPath();
-    ctx.clearRect(beg_rect,115,230,40)
-    ctx.fillStyle = (tornado_obj.last_use + tornado_obj.load_time > tic ? "#b8b8b8" : "white");
-    ctx.rect(beg_rect,115,230,40);
-    ctx.stroke();
-    ctx.fill();
-    ctx.font = "25px serif";
-    ctx.fillStyle = "black";
-    ctx.fillText("tornado", beg_rect+5, 140, 220);
+    ctx.drawImage((tornado_obj.last_use + tornado_obj.load_time > tic ? attack_unavailable : attack_available),
+                740,160,100,100);
     ctx.closePath();
 }
 
 function earthquake_button() {
-    ctx.beginPath();
-    ctx.clearRect(beg_rect,165,230,40)
-    ctx.fillStyle = (earthquake_obj.last_use + earthquake_obj.load_time > tic ? "#b8b8b8" : "white");
-    ctx.rect(beg_rect,165,230,40);
-    ctx.stroke();
-    ctx.fill();
-    ctx.font = "25px serif";
-    ctx.fillStyle = "black";
-    ctx.fillText("earthquake", beg_rect+5, 190, 220);
+    ctx.drawImage((earthquake_obj.last_use + earthquake_obj.load_time > tic ? attack_unavailable : attack_available),
+                740,215,100,100);
     ctx.closePath();
 }
 
 function typhoon_button() {
     ctx.beginPath();
-    ctx.clearRect(beg_rect,215,230,40)
-    ctx.fillStyle = (typhoon_obj.last_use + typhoon_obj.load_time > tic ? "#b8b8b8" : "white");
-    ctx.rect(beg_rect,215,230,40);
-    ctx.stroke();
-    ctx.fill();
-    ctx.font = "25px serif";
-    ctx.fillStyle = "black";
-    ctx.fillText("typhoon", beg_rect+5, 240, 220);
-    ctx.closePath();
-}
-
-function display_statistics() {
-    ctx.beginPath();
-    ctx.fillStyle = "grey";
-    ctx.clearRect(5,5,250,260);
-    ctx.rect(5,5,250,260);
-    ctx.stroke();
-    ctx.fill();
-    ctx.closePath();
-
-    ctx.beginPath();
-    ctx.font = "25px serif";
-    ctx.fillStyle = "white";
-    ctx.fillText("people: " + how_many(inhabitants), 10, 35, 240);
-    ctx.fillText("resources: " + how_many(earth_resources), 10, 80, 240);
-    ctx.fillText("killed: " + how_many(inhabitant_killed), 10, 125, 240);
-    ctx.fillText("Attacks: " + how_many(attack_launched), 10, 170, 240);
-    ctx.fillText("Years: " + how_many(tic), 10, 215, 240);
+    ctx.drawImage((typhoon_obj.last_use + typhoon_obj.load_time > tic ? attack_unavailable : attack_available),
+                740,270,100,100);
     ctx.closePath();
 }
 
