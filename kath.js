@@ -46,7 +46,6 @@ display_startscreen();
 function runGame() {
     redraw_game();
     resources_consumption();
-    display_statistics();
     display_inhabitants_block();
     if (earth_resources <= 0) {
         clearInterval(t);
@@ -182,7 +181,7 @@ function display_background() {
     ctx.drawImage(background_img, 0, 0);
 
     display_action();
-    display_statistics();
+    display_sound();
 }
 
 function display_action() {
@@ -264,6 +263,7 @@ function redraw_blocks() {
 function redraw_game() {
     ctx.clearRect(0,0,game_width,game_height);
     display_background();
+    display_statistics();
     redraw_blocks();
 }
 /* --------------------------- */
@@ -342,9 +342,7 @@ function base_attack(from, distance) {
             earth_resources += 10000;
             blocks_position.splice(current,1);
             wait_for_procreation = tic + 5;
-            display_statistics();
         }
-        redraw_game();
     }
 }
 /* --------------------------- */
