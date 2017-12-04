@@ -262,15 +262,29 @@ function display_inhabitants_block() {
         ctx.beginPath();
         var x = Math.floor(Math.random() * 1270);
         var y = Math.floor(y_on_earth(x));
-        ctx.rect(x,y,20,20)
-        ctx.fillStyle = "red";
-        ctx.fill();
-        // ctx.stroke();
-        ctx.closePath();
+        var human_img = new Image();
+        human_img.src = "img/human.png";
+        ctx.drawImage(human_img, x, y, 50, 50);
         ib_displayed++;
         blocks_position.push({x,y});
         blocks_position.sort(function(a,b){return a.x>b.x;});
     }
+}
+
+function redraw_blocks() {
+    var human_img = new Image();
+    human_img.src = "img/human.png";
+    for (var i = 0; i < blocks_position.length; i++) {
+        var x = blocks_position[i].x;
+        var y = blocks_position[i].y;
+        ctx.drawImage(human_img, x, y, 50, 50);
+    }
+}
+
+function redraw_game() {
+    ctx.clearRect(0,0,game_width,game_height);
+    display_background();
+    redraw_blocks();
 }
 /* --------------------------- */
 
@@ -317,18 +331,14 @@ function base_attack(from, distance) {
     if (blocks_position.some(x => x.x > from && x.x < to)) {
         var current = blocks_position.findIndex(x => x.x > from);
         while (current < blocks_position.length && blocks_position[current].x < to) {
-            ctx.beginPath();
-            ctx.rect(blocks_position[current].x, blocks_position[current].y, 20, 20);
-            ctx.fillStyle = "blue";
-            ctx.fill();
-            ctx.closePath();
+            var img = ctx.createImageData(blocks_position[current].x, blocks_position[current].y);
+            for (var i = img.data.length; --i >= 0;) img.data[i] = 0;
             inhabitants = (inhabitants - inhabitant_block_value > 0) ? inhabitants - inhabitant_block_value : 100;
             inhabitant_killed += inhabitant_block_value;
             blocks_position.splice(current,1);
             display_statistics();
-            // var wait = 50 + new Date().getTime();
-            // while (new Date().getTime() < wait) {}
         }
+        redraw_game();
     }
 }
 /* --------------------------- */
@@ -336,11 +346,7 @@ function base_attack(from, distance) {
 /* ------- UTILS ------- */
 function y_on_earth(x) {
     var z = x - 640;
-    if (x < game_width/2) {
-        return (game_height-20) - 150/(game_width/1.5) * (Math.sqrt(Math.abs(z*z - Math.pow(game_width/1.5,2))));
-    } else {
-        return (game_height-20) - 150/(game_width/1.5) * (Math.sqrt(Math.abs(z*z - Math.pow(game_width/1.5,2))));
-    }
+    return (game_height-45) - 150/(game_width/1.5) * (Math.sqrt(Math.abs(z*z - Math.pow(game_width/1.5,2))));
 }
 
 function how_many(value) {
