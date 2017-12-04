@@ -148,22 +148,10 @@ function display_startscreen() {
 }
 
 function display_background() {
-
     ctx.clearRect(0,0,1280,720);
-
-    var grd = ctx.createLinearGradient(game_width/2,game_height/3,game_width/2,0);
-    grd.addColorStop(0,"blue");
-    grd.addColorStop(1,"white");
-    ctx.beginPath();
-    ctx.fillStyle = grd;
-    ctx.fillRect(0,0,game_width,game_height);
-    ctx.closePath();
-
-    ctx.beginPath();
-    ctx.fillStyle = "green";
-    ctx.ellipse(game_width/2, game_height, game_width/1.5, 150, 0, Math.PI, 3 * Math.PI);
-    ctx.closePath();
-    ctx.fill();
+    var background_img = new Image();
+    background_img.src = "img/background.png";
+    ctx.drawImage(background_img, 0, 0);
 
     display_action();
     display_statistics();
