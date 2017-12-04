@@ -15,6 +15,12 @@ var attack_available = new Image();
 attack_available.src = "img/attack.png"
 var attack_unavailable = new Image();
 attack_unavailable.src = "img/freeze.png"
+var sound_on = new Image();
+sound_on.src = "img/snd_on.png";
+var sound_off = new Image();
+sound_off.src = "img/snd_off.png";
+var theme;
+var has_sound = true;
 /* --------------------------- */
 /* ------- GAME VARIABLE ------- */
 var inhabitants;
@@ -67,19 +73,21 @@ function resources_consumption() {
     if (earth_resources < 0) earth_resources = 0;
 }
 
-function launch_game() {
+function launch_game(bl) {
     init_world();
-    document.getElementById("game").addEventListener("click", function(event) {
-        var rect = c.getBoundingClientRect();
-        var X = Math.floor((event.clientX-rect.left)/(rect.right-rect.left) * game_width);
-        var Y = Math.floor((event.clientY-rect.top)/(rect.bottom-rect.top) * game_height);
-        if (X > 770 && X < 812 && Y > 80 && Y < 120) lightning();
-        if (X > 770 && X < 812 && Y > 135 && Y < 185) eruption();
-        if (X > 770 && X < 812 && Y > 190 && Y < 240) tornado();
-        if (X > 770 && X < 812 && Y > 245 && Y < 295) earthquake();
-        if (X > 770 && X < 812 && Y > 300 && Y < 350) typhoon();
-    }, false);
-    display_background();
+    if (bl) {
+        document.getElementById("game").addEventListener("click", function(event) {
+            var rect = c.getBoundingClientRect();
+            var X = Math.floor((event.clientX-rect.left)/(rect.right-rect.left) * game_width);
+            var Y = Math.floor((event.clientY-rect.top)/(rect.bottom-rect.top) * game_height);
+            if (X > 770 && X < 812 && Y > 80 && Y < 120) lightning();
+            if (X > 770 && X < 812 && Y > 135 && Y < 185) eruption();
+            if (X > 770 && X < 812 && Y > 190 && Y < 240) tornado();
+            if (X > 770 && X < 812 && Y > 245 && Y < 295) earthquake();
+            if (X > 770 && X < 812 && Y > 300 && Y < 350) typhoon();
+            if (X > game_width - 60 && Y < 60) sound_action();
+        }, false);
+    }
     t = setInterval(runGame,100);
 }
 
@@ -103,16 +111,25 @@ function init_world() {
 /* --------------------------- */
 
 /* ------- DISPLAY ------- */
+function display_sound() {
+    ctx.drawImage(has_sound ? sound_on : sound_off, game_width - 60, 10, 50, 50);
+}
+
 function display_endscreen() {
-    var end_screen = new Image();
-    end_screen.src = "img/end_screen.png";
-    end_screen.onload = function() {
+    function draw() {
+        ctx.clearRect(0, 0, game_width, game_height);
         ctx.drawImage(end_screen, 0, 0);
         ctx.beginPath();
         ctx.font = "150px serif";
         ctx.fillStyle = "white";
-        ctx.fillText(tic, 100, 450,250);
+        ctx.fillText(tic, tic > 100 ? 100 : 125, 450,250);
         ctx.closePath();
+        display_sound();
+    }
+    var end_screen = new Image();
+    end_screen.src = "img/end_screen.png";
+    end_screen.onload = function() {
+        draw();
         function restart_event(event) {
             var rect = c.getBoundingClientRect();
             var X = Math.floor((event.clientX-rect.left)/(rect.right-rect.left) * game_width);
@@ -120,7 +137,10 @@ function display_endscreen() {
             if (X > 1000 && X < 1200 && Y > 525 && Y < 630) {
                 this.removeEventListener("click", restart_event);
                 init_world();
-                launch_game();
+                launch_game(false);
+            }
+            if (X > game_width - 60 && Y < 60) {
+                draw();
             }
         }
         c.addEventListener("click", restart_event);
@@ -128,22 +148,33 @@ function display_endscreen() {
 }
 
 function display_startscreen() {
+    function draw() {
+        ctx.clearRect(0, 0, game_width, game_height);
+        ctx.drawImage(start_screen, 0, 0);
+        display_sound();
+    }
     var start_screen = new Image();
     start_screen.src = "img/start_screen.png";
     start_screen.onload = function() {
-        ctx.drawImage(start_screen, 0, 0);
-
+        draw();
         function start_event(event) {
             var rect = c.getBoundingClientRect();
             var X = Math.floor((event.clientX-rect.left)/(rect.right-rect.left) * game_width);
             var Y = Math.floor((event.clientY-rect.top)/(rect.bottom-rect.top) * game_height);
             if (X > 1000 && X < 1200 && Y > 525 && Y < 630) {
                 this.removeEventListener("click", start_event);
-                launch_game();
+                launch_game(true);
+            }
+            if (X > game_width - 60 && Y < 60) {
+                sound_action();
+                draw();
             }
         }
         c.addEventListener("click", start_event);
     }
+    theme = new Audio("snd/main_theme.mp3");
+    theme.loop = true;
+    theme.play();
 }
 
 function display_background() {
@@ -243,6 +274,10 @@ function lightning() {
     var pos = Math.floor(Math.random() * game_width);
     base_attack(pos, 1);
     lightning_obj.last_use = tic;
+    if (has_sound) {
+        var snd = new Audio("snd/lightning.wav");
+        snd.play();
+    }
 }
 
 function eruption() {
@@ -254,6 +289,10 @@ function eruption() {
     base_attack(pos2, 8);
     base_attack(pos3, 8);
     eruption_obj.last_use = tic;
+    if (has_sound) {
+        var snd = new Audio("snd/eruption.wav");
+        snd.play();
+    }
 }
 
 function tornado() {
@@ -261,6 +300,10 @@ function tornado() {
     var pos = Math.floor(Math.random() * game_width);
     base_attack(pos, 50);
     tornado_obj.last_use = tic;
+    if (has_sound) {
+        var snd = new Audio("snd/tornado.wav");
+        snd.play();
+    }
 }
 
 function earthquake() {
@@ -268,6 +311,10 @@ function earthquake() {
     var pos = Math.floor(Math.random() * game_width);
     base_attack(pos, 100);
     earthquake_obj.last_use = tic;
+    if (has_sound) {
+        var snd = new Audio("snd/earthquake.wav");
+        snd.play();
+    }
 }
 
 function typhoon() {
@@ -275,6 +322,10 @@ function typhoon() {
     var pos = Math.floor(Math.random() * game_width);
     base_attack(pos, 150);
     typhoon_obj.last_use = tic;
+    if (has_sound) {
+        var snd = new Audio("snd/typhoon.wav");
+        snd.play();
+    }
 }
 
 function base_attack(from, distance) {
@@ -314,5 +365,15 @@ function how_many(value) {
         return vl.substring(0,vl.length-6) + "," + vl.substring(vl.length-6, vl.length-4) + " M";
     }
     return vl.substring(0,vl.length-9) + "," + vl.substring(vl.length-9, vl.length-7) + " B";
+}
+
+function sound_action() {
+    if (has_sound) {
+        has_sound = false;
+        theme.pause();
+    } else {
+        has_sound = true;
+        theme.play();
+    }
 }
 /* --------------------------- */
