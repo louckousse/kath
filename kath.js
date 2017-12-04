@@ -75,9 +75,9 @@ function launch_game() {
         var Y = Math.floor((event.clientY-rect.top)/(rect.bottom-rect.top) * game_height);
         if (X > 770 && X < 812 && Y > 80 && Y < 120) lightning();
         if (X > 770 && X < 812 && Y > 135 && Y < 185) eruption();
-        if (X > 770 && X < 812 && Y > 190 && Y < 340) tornado();
-        if (X > 770 && X < 812 && Y > 245 && Y < 395) earthquake();
-        if (X > 770 && X < 812 && Y > 300 && Y < 450) typhoon();
+        if (X > 770 && X < 812 && Y > 190 && Y < 240) tornado();
+        if (X > 770 && X < 812 && Y > 245 && Y < 295) earthquake();
+        if (X > 770 && X < 812 && Y > 300 && Y < 350) typhoon();
     }, false);
     display_background();
     t = setInterval(runGame,100);
