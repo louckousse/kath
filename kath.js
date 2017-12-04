@@ -306,15 +306,19 @@ function lightning() {
 
 function eruption() {
     if (eruption_obj.last_use + eruption_obj.load_time > tic) return;
-    var pos = Math.floor(Math.random() * game_width);
-    base_attack(pos, 25);
+    var pos1 = Math.floor(Math.random() * game_width);
+    var pos2 = Math.floor(Math.random() * game_width);
+    var pos3 = Math.floor(Math.random() * game_width);
+    base_attack(pos1, 8);
+    base_attack(pos2, 8);
+    base_attack(pos3, 8);
     eruption_obj.last_use = tic;
 }
 
 function tornado() {
     if (tornado_obj.last_use + tornado_obj.load_time > tic) return;
     var pos = Math.floor(Math.random() * game_width);
-    base_attack(pos, 50)
+    base_attack(pos, 50);
     tornado_obj.last_use = tic;
 }
 
