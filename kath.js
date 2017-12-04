@@ -104,45 +104,27 @@ function init_world() {
 
 /* ------- DISPLAY ------- */
 function display_endscreen() {
-    ctx.beginPath();
-    ctx.rect(0,0,1280,720);
-    ctx.fillStyle = 'rgba(225,225,225,0.8)';
-    ctx.fill();
-    ctx.closePath();
-
-    ctx.beginPath();
-    ctx.font = "95px serif";
-    ctx.fillStyle = "RED";
-    ctx.fillText("HUMANS KILLED THE EARTH", 10, 250, 1260);
-    ctx.fillText("SHAME ON THEM", 200, 350);
-    ctx.font = "55px serif";
-    ctx.fillStyle = "black";
-    ctx.fillText("By the way, you survived for " + tic + " years...", 110, 450);
-    ctx.closePath();
-
-    ctx.beginPath();
-    ctx.fillStyle = "black";
-    ctx.rect(515,500,300,100);
-    ctx.fill();
-    ctx.closePath();
-
-    ctx.beginPath();
-    ctx.font = "65px serif";
-    ctx.fillStyle = "white";
-    ctx.fillText("Again?..", 535, 575);
-    ctx.closePath();
-
-    function restart_event(event) {
-        var rect = c.getBoundingClientRect();
-        var X = Math.floor((event.clientX-rect.left)/(rect.right-rect.left) * game_width);
-        var Y = Math.floor((event.clientY-rect.top)/(rect.bottom-rect.top) * game_height);
-        if (X > 515 && X < 815 && Y > 500 && Y < 600) {
-            this.removeEventListener("click", restart_event);
-            init_world();
-            launch_game();
+    var end_screen = new Image();
+    end_screen.src = "img/end_screen.png";
+    end_screen.onload = function() {
+        ctx.drawImage(end_screen, 0, 0);
+        ctx.beginPath();
+        ctx.font = "150px serif";
+        ctx.fillStyle = "white";
+        ctx.fillText(tic, 100, 450,250);
+        ctx.closePath();
+        function restart_event(event) {
+            var rect = c.getBoundingClientRect();
+            var X = Math.floor((event.clientX-rect.left)/(rect.right-rect.left) * game_width);
+            var Y = Math.floor((event.clientY-rect.top)/(rect.bottom-rect.top) * game_height);
+            if (X > 1000 && X < 1200 && Y > 525 && Y < 630) {
+                this.removeEventListener("click", restart_event);
+                init_world();
+                launch_game();
+            }
         }
+        c.addEventListener("click", restart_event);
     }
-    c.addEventListener("click", restart_event);
 }
 
 function display_startscreen() {
